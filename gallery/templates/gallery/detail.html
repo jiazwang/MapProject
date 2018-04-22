@@ -1,0 +1,89 @@
+{% extends 'gallery/base.html' %}
+{% block title %}{{ collection }}{% endblock %}
+{% block collections_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid pictures-container">
+
+    <div class="row">
+
+        <!-- Left Collection Info -->
+        <div class="col-sm-4 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a href="{% url 'gallery:detail' collection.id %}">
+                        {% if collection.collection_logo %}
+                            <img src="{{ collection.collection_logo.url }}" class="img-responsive">
+                        {% else %}
+                            <h3>No image to display</h3>
+                        {% endif %}
+                    </a>
+                    <h1>{{ collection.collection_title }} <small>{{ collection.format }}</small></h1>
+                    <h2>{{ collection.artist }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Picture Info -->
+        <div class="col-sm-8 col-md-9">
+
+            <ul class="nav nav-pills" style="margin-bottom: 10px;">
+                <li role="presentation" class="active"><a href="{% url 'gallery:detail' collection.id %}">View All</a></li>
+                <li role="presentation"><a href="{% url 'gallery:create_picture' collection.id %}">Add New Picture</a></li>
+            </ul>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <h3>All Pictures</h3>
+
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Favorite</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for picture in collection.picture_set.all %}
+                            <tr>
+                                <td>{{ picture.picture_title }}</td>
+                                <td>
+                                    <a target="_blank" href="{{ picture.audio_file.url }}">
+                                        <button type="button" class="btn btn-success btn-xs">
+                                            <span class="glyphicon glyphicon-play"></span>&nbsp; Play
+                                        </button>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'gallery:favorite' picture.id %}" class="btn-favorite"><span class="glyphicon glyphicon-star {% if picture.is_favorite %}active{% endif %}"></span></a>
+                                </td>
+                                <td>
+                                    <form action="{% url 'gallery:delete_picture' collection.id picture.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="picture_id" value="{{ picture.id }}" />
+                                        <button type="submit" class="btn btn-danger btn-xs">
+                                            <span class="glyphicon glyphicon-remove"></span>&nbsp; Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

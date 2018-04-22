@@ -1,0 +1,108 @@
+{% extends 'gallery/base.html' %}
+{% block collections_active %}active{% endblock %}
+
+{% block body %}
+<div class="collection-container container-fluid">
+
+    <!-- Collections -->
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>{{ user.username }}'s Collection</h3>
+        </div>
+        {% if collections %}
+            {% for collection in collections %}
+                <div class="col-sm-4 col-lg-2">
+                    <div class="thumbnail">
+                        <a href="{% url 'gallery:detail' collection.id %}">
+                            <img src="{{ collection.collection_logo.url }}" class="img-responsive">
+                        </a>
+                        <div class="caption">
+                            <h2>{{ collection.collection_title }}</h2>
+                            <h4>{{ collection.artist }}</h4>
+
+                            <!-- View Details -->
+                            <a href="{% url 'gallery:detail' collection.id %}" class="btn btn-primary btn-sm" role="button">View Details</a>
+
+                            <!-- Delete Collection -->
+                            <form action="{% url 'gallery:delete_collection' collection.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="collection_id" value="{{ collection.id }}" />
+                                <button type="submit" class="btn btn-default btn-sm">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </form>
+
+                            <!-- Favorite Collection -->
+                            <a href="{% url 'gallery:favorite_collection' collection.id %}" class="btn btn-default btn-sm btn-favorite" role="button">
+                                <span class="glyphicon glyphicon-star {% if collection.is_favorite %}active{% endif %}"></span>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+                {% cycle '' '' '' '' '' '<div class="clearfix visible-lg"></div>' %}
+            {% endfor %}
+        {% else %}
+            <div class="col-sm-12">
+                <br>
+                <a href="{% url 'gallery:create_collection' %}">
+                    <button type="button" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>&nbsp; Add a Collection
+                    </button>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- If user searches and there are pictures -->
+    {% if pictures %}
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Pictures</h3>
+            </div>
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Picture Title</th>
+                                    <th>Artist</th>
+                                    <th>File</th>
+                                    <th>Collection</th>
+                                    <th>Favorite</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for picture in pictures %}
+                                    <tr>
+                                        <td>{{ picture.picture_title }}</td>
+                                        <td>{{ picture.collection.artist }}</td>
+                                        <td>
+                                            <a target="_blank" href="{{ picture.audio_file.url }}">
+                                                <button type="button" class="btn btn-success btn-xs">
+                                                    <span class="glyphicon glyphicon-play"></span>&nbsp; Play
+                                                </button>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'gallery:detail' picture.collection.id %}">
+                                                <img src="{{ picture.collection.collection_logo.url }}" class="img-responsive" style="width: 20px; float: left; margin-right: 10px;" />
+                                            </a>
+                                            <a href="{% url 'gallery:detail' picture.collection.id %}">{{ picture.collection.collection_title }}</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'gallery:favorite' picture.id %}" class="btn-favorite"><span class="glyphicon glyphicon-star {% if picture.is_favorite %}active{% endif %}"></span></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
